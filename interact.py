@@ -1,7 +1,10 @@
 import phys
 import improc
 
-import Tkinter as TK
+try:
+  import Tkinter as TK
+except ImportError:
+  import tkinter as TK
 
 class buttonframe(object):
   def __init__(self, root, toplabel, size, pos, f, bg='white', funclabel=False):
