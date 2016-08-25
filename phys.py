@@ -39,8 +39,6 @@ def angle_hor(c1,c2):
 def angle_to_xy(x,y,s,t):
   v=v0 = f_v0(s,t)
   g = f_g(s,t)
-  print(v)
-  print(g)
   root_term = v**4 - g*(g*x**2 + 2*y*v**2)
   if root_term < 0:
     return False

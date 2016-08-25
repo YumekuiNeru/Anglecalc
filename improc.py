@@ -1,5 +1,5 @@
 from PIL import Image
-from sys import platform
+from sys import platform, argv
 import os
 import time
 import cdiff
@@ -9,9 +9,20 @@ try:
 except ImportError:
     pass
 
+def get_path():
+    """return path to program directory incase run from outside it"""
+    real = os.path.realpath(argv[0])
+    head,tail = os.path.split(real)
+    return head
+    
+
 def screenshot_lin():
     """requires scrot for screenshots"""
-    filepath = os.path.join('img', 'gwindowtemp.png')
+    dirpath = os.path.join(get_path(), 'img')
+    if not os.path.exists(dirpath):
+        os.mkdir(dirpath)
+    filepath = os.path.join(dirpath, 'gwindowtemp.png')
+    
     cmd = 'scrot ' + filepath
     os.system(cmd)
     time.sleep(0.1)
@@ -20,13 +31,12 @@ def screenshot_lin():
     return img
                   
 def screenshot(bbox=None):
-    '''bbox: [x,y,w,h]'''
-    if not os.path.exists('img'):
-        os.mkdir('img')
-
- 
+    '''bbox: [x,y,w,h]''' 
     if platform == 'darwin' or platform.startswith('win'):
-        img = ImageGrab.grab(bbox=bbox)
+        if bbox:
+            img = ImageGrab.grab(bbox=bbox)
+        else:
+            img = ImageGrab.grab()
     elif platform.startswith('linux'):
         img = screenshot_lin()
         if bbox:
@@ -149,16 +159,16 @@ def find_solid_cdiff(gimg, colour, lsize, maxdiff=3.0):
     return
 
 def find_window():
-    #file = 'imgrec/window/corner.png'
-    file = os.path.join('imgrec', 'window', 'corner.png')
+    programpath = get_path()
+    file = os.path.join(programpath, 'imgrec', 'window', 'corner.png')
     limg = Image.open(file)
     for coord in find_exact_image(limg):
         yield (coord[0], coord[1], coord[0]+640, coord[1]+480)
 
 def find_map(gbbox):
   gimg = screenshot(gbbox)
-  #limg = Image.open('imgrec/map/corner.png')
-  limg = Image.open(os.path.join('imgrec', 'map', 'corner.png'))
+  programpath = get_path()
+  limg = Image.open(os.path.join(programpath, 'imgrec', 'map', 'corner.png'))
   for cpos in find_exact_image(limg, gimg):
     mappos = (cpos[0] + 4, cpos[1] + 4)
     return mappos  
@@ -169,6 +179,8 @@ def iter_map(gbbox):
   #scale_dw = phys.constants.map_
   #windowed minimap, all(?) maps except AC
   #resizable map is scaled down by 8 rather than 16
+  #should be easy to make program trace out edges of map to work with all mapsizes 
+  #rather than just 120x60 but ehhhhhhhhh 
   map = img.crop([mappos[0], mappos[1], mappos[0]+120, mappos[1]+60])
   pix = map.load()
   for x,y in pixelloop(0, map.size):
