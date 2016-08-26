@@ -23,19 +23,6 @@ class Constants(object):
 
 constants = Constants()
 
-def angle_hor(c1,c2):
-  vec1 = (c2[0] - c1[0], c2[1] - c1[1])
-  vec2 = (1,0) 
-
-  dot = vec1[0]
-  ab = math.sqrt(vec1[0]**2 + vec1[1]**2)
-  if ab == 0:
-    return 0
-  costh = dot/float(ab)
-
-  th = math.acos(costh)
-  return math.degrees(th)
-
 def angle_to_xy(x,y,s,t):
   v=v0 = f_v0(s,t)
   g = f_g(s,t)
